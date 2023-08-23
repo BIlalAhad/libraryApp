@@ -2,8 +2,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { getFirestore, addDoc, collection, getDoc,getDocs } from "firebase/firestore";
+import { getFirestore, addDoc,doc, collection, getDoc,getDocs,deleteDoc } from "firebase/firestore";
 import { getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
+
 
 const FirebaseContext = createContext(null);
 
@@ -40,7 +41,7 @@ export const FirebaseProvider = (props) => {
 
     const isLoggedIn = user ? true : false;
     const HandleCreateNewListing = async (bookname, ISBN, price, img) => {
-        const imageRef = ref(storage, `uploads/images/${Date.now()}${img.name}`)
+        const imageRef = ref(storage, `${Date.now()}${img.name}`)
         const uploadResult = await uploadBytes(imageRef, img)
         const docRef = await addDoc(collection(db, "users"), {
             bookname,
@@ -64,17 +65,10 @@ export const FirebaseProvider = (props) => {
     const listAllBooks=()=>{
         return getDocs(collection(db,'users'));
     }
-    // const Getrecord=(path)=>{
-    //     listAll(ref(storage,'path')).then(imgs=>{
-    //         // imgs.items.forEach(val=>getDownloadURL(val).then(url=>setURL(url)))
-    //     })
-    //     }
+    const Deleteresult=(item)=>{
+         return deleteDoc(doc(db, "users", item));
+    }
 
-   
-    // const getRecords =async () => {
-    //     const todoRef = collection(db, 'users');
-    //     let allTodos = await getDocs(todoRef);
-    // }
 
-    return <FirebaseContext.Provider value={{ SignupUserWithEmailAndPassword, SigninUserWithEmailAndPassword, SigninWithGoogle, isLoggedIn, HandleCreateNewListing,listAllBooks }}>{props.children}</FirebaseContext.Provider>
+    return <FirebaseContext.Provider value={{ SignupUserWithEmailAndPassword, SigninUserWithEmailAndPassword, SigninWithGoogle, isLoggedIn, HandleCreateNewListing, listAllBooks, storage , Deleteresult}}>{props.children}</FirebaseContext.Provider>
 }
